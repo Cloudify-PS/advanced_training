@@ -1,0 +1,63 @@
+
+plugins:
+  solution:
+    source: solution_plugin
+    package_name: solution_plugin
+    executor: central_deployment_agent
+    package_version: '0.1'
+
+node_types:
+
+  training.solution.node:
+    derived_from: cloudify.nodes.Root
+    properties:
+      NumberA:
+        default: 5
+      NumberB:
+        default: 3
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: solution.solution.tasks.multiply
+          inputs:
+            input1:
+              default: { get_attribute: [SELF , NumberA ]}
+            input2:
+              default: { get_attribute: [SELF , NumberB ]}
+            target:
+              default: 'product'
+
+
+  training.solution.log:
+    derived_from: cloudify.nodes.Root
+    properties:
+      log:
+        default: "Something to log"
+    interfaces:
+      cloudify.interfaces.lifecycle:
+        create:
+          implementation: solution.solution.tasks.log
+          inputs:
+            input:
+              default: { get_attribute: [SELF , log ]}
+
+relationships:
+  solution.relationships.connected_to_product:
+    derived_from: cloudify.relationships.connected_to
+    source_interfaces:
+      cloudify.interfaces.relationship_lifecycle:
+        establish:
+          implementation: solution.solution.tasks.copy_property
+          inputs:
+            prop_target:
+              default: product
+            prop_source:
+              default: parent_product
+
+workflows:
+  solution:
+    mapping: solution.solution.tasks.solution
+    parameters:
+      parameter:
+        description: workflow parameter
+        default: "This is the Default Paramenter"

@@ -1,0 +1,22 @@
+tosca_definitions_version: cloudify_dsl_1_3
+
+imports:
+  - https://cloudify.co/spec/cloudify/5.0.5/types.yaml
+  - plugins/solution_plugin/plugin.yaml
+
+
+
+node_templates:
+
+  logg_node:
+    type: training.solution.log
+    properties:
+      log: "Logg This String"
+    relationships:
+      - target: my_node
+        type: solution.relationships.connected_to_product
+
+
+
+  my_node:
+    type: training.solution.node
